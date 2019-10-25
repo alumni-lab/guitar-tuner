@@ -1,26 +1,39 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import AudioAnalyser from './AudioAnalyser';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const App = () =>{
+  const [audio, setAudio] = useState(null)
+
+  const getMicrophone = async () => {
+    const audioStatus = await navigator.mediaDevices.getUserMedia({
+      audio: true,
+      video: false
+    });
+    setAudio(audioStatus);
+  }
+
+  const stopMicrophone = async () => {
+    audio.getTracks().forEach(track => track.stop());
+    setAudio(null);
+  }
+
+  const toggleMicrophone= () => {
+    if (audio) {
+      stopMicrophone();
+    } else {
+      getMicrophone();
+    }
+  }
+
+    return (
+      <div className="App">
+        <div className="controls">
+          <button onClick={toggleMicrophone}>{audio ? 'Stop microphone' : 'Get microphone input'}</button>
+        </div>
+        {audio ? <AudioAnalyser audio={audio} /> : ''}
+      </div>
+    );
+
 }
 
 export default App;
