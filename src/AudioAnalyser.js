@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from "react";
-// import AudioVisualiser from "./AudioVisualiser";
+import React, { useEffect, useState } from "react";
 
 const AudioAnalyser = ({ audio }) => {
-  const [audioData, setAudioData] = useState(new Uint8Array(0));
-  const [rafId, setRafId] = useState(null);
+  const [pitch, setPitch] = useState();
+  const [note, setNote] = useState();
+  const [detune, setDetune] = useState();
 
-  const audioContext = new (window.AudioContext || window.webkitAudioContext)(); //should be same as audioContext
-  const analyser = audioContext.createAnalyser(); //same name
-  const dataArray = new Float32Array(analyser.frequencyBinCount); // equivalent to 'buf'
-  const source = audioContext.createMediaStreamSource(audio); //shoulde be same as mediaStreamSource
+  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  const analyser = audioContext.createAnalyser();
+  const dataArray = new Float32Array(analyser.frequencyBinCount);
+  let source = audioContext.createMediaStreamSource(audio);
   analyser.fftSize = 2048;
   source.connect(analyser);
 
@@ -44,7 +44,7 @@ const AudioAnalyser = ({ audio }) => {
   }
   //######helper functions to be moved to another file
 
-  // var rafID = null;//for animationframe
+  var rafID = null; //for animationframe
 
   var MIN_SAMPLES = 0; // will be initialized when AudioContext is created.
   var GOOD_ENOUGH_CORRELATION = 0.9; // this is the "bar" for how close a correlation needs to be
@@ -58,7 +58,7 @@ const AudioAnalyser = ({ audio }) => {
     var foundGoodCorrelation = false;
     var correlations = new Array(MAX_SAMPLES);
 
-    for (var i = 0; i < SIZE; i++) {
+    for (let i = 0; i < SIZE; i++) {
       var val = buf[i];
       rms += val * val;
     }
@@ -71,7 +71,7 @@ const AudioAnalyser = ({ audio }) => {
     for (var offset = MIN_SAMPLES; offset < MAX_SAMPLES; offset++) {
       var correlation = 0;
 
-      for (var i = 0; i < MAX_SAMPLES; i++) {
+      for (let i = 0; i < MAX_SAMPLES; i++) {
         correlation += Math.abs(buf[i] - buf[i + offset]);
       }
       correlation = 1 - correlation / MAX_SAMPLES;
@@ -110,28 +110,25 @@ const AudioAnalyser = ({ audio }) => {
     //	var best_frequency = sampleRate/best_offset;
   }
 
-  function updatePitch(time) {
-    // var cycles = new Array;
+  function updatePitch() {
     analyser.getFloatTimeDomainData(dataArray);
     var ac = autoCorrelate(dataArray, audioContext.sampleRate);
 
-    if (ac == -1) {
-      console.log("invalid");
+    if (ac === -1) {
       //to be adjusted for element values
-      // detectorElem.className = "vague";
+      // detectorClass = "vague";
       // pitchElem.innerText = "--";
       // noteElem.innerText = "-";
       // detuneElem.className = "";
       // detuneAmount.innerText = "--";
     } else {
-      // detectorElem.className = "confident";
-      let pitch = ac;
-      console.log(Math.round(pitch));
+
+      setPitch(Math.round(ac));
       // pitchElem.innerText = Math.round(pitch);
-      var note = noteFromPitch(pitch);
-      console.log(noteStrings[note % 12]);
+      // var note = noteFromPitch(ac);
+      setNote(noteStrings[noteFromPitch(ac) % 12]);
       // noteElem.innerHTML = noteStrings[note % 12];
-      var detune = centsOffFromPitch(pitch, note);
+      setDetune(centsOffFromPitch(ac, noteFromPitch(ac)));
       if (detune === 0) {
         // detuneElem.className = "";
         // detuneAmount.innerHTML = "--";
@@ -139,25 +136,48 @@ const AudioAnalyser = ({ audio }) => {
         // if (detune < 0) detuneElem.className = "flat";
         // else detuneElem.className = "sharp";
         // detuneAmount.innerHTML = Math.abs(detune);
-        console.log("off by", detune);
+        // console.log("off by", detune);
       }
     }
 
     if (!window.requestAnimationFrame)
       window.requestAnimationFrame = window.webkitRequestAnimationFrame;
-    setRafId(window.requestAnimationFrame(updatePitch));
+    rafID = window.requestAnimationFrame(updatePitch);
+  }
+  let sign = "-";
+  if (detune === 0) {
+    sign = "-";
+  } else if (detune < 0) {
+    sign = "cents ♭";
+  } else if (detune > 0) {
+    sign = "cents ♯";
   }
 
   useEffect(() => {
     updatePitch();
     return () => {
-      cancelAnimationFrame(rafId);
+      source.disconnect();
+      cancelAnimationFrame(rafID);
       analyser.disconnect();
       source.disconnect();
     };
   }, []);
 
-  return <></>;
+  return (
+    <div>
+      <div className="pitch">
+        <span id="pitch">frequency: {pitch}</span>Hz
+      </div>
+      <div className="note">
+        <span id="note">Note: {note}</span>
+      </div>
+      <canvas id="output" width="300" height="42"></canvas>
+      <div id="detune">
+        <span id="detune_amt">Off by: {Math.abs(detune)}</span>
+        <span>{sign}</span>
+      </div>
+    </div>
+  );
 };
 
 export default AudioAnalyser;
