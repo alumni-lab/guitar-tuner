@@ -13,21 +13,22 @@ code {
 }
 
 .meter {
-  /* position: absolute; */
+  top: 30px;
   width: 200px;
   height: 33%;
+  margin-bottom: 5px;
 }
 .meter__scale {
- width: 1px;
- height: 25vw;
- min-height: 250px;
- transform-origin: bottom;
- border-top: 10px solid;
- position: absolute;
- right: 50%;
+  width: 1px;
+  height: 25vw;
+  min-height: 250px;
+  transform-origin: bottom;
+  border-top: 10px solid;
+  position: absolute;
+  right: 50%;
 }
 
-.meter__pointer{
+.meter__pointer {
   background: black;
   width: 2px;
   height: 25vw;
@@ -35,10 +36,35 @@ code {
   transform-origin: bottom;
   transition: transform 0.5s;
   position: absolute;
-  right: 50%
-}
-.pitch{
- 
+  right: 50%;
 }
 
+.note {
+  margin-top: calc(200px + 15vw);
+  color: #000018;
+  font-size: 7rem;
+}
 
+.pitch {
+  color: #000018;
+  font-size: 1.5rem;
+}
+
+.microphone {
+  margin-top: 5px;
+  background-color: #ededed;
+  border-radius: 6px;
+  border: 1px solid #dcdcdc;
+  color: #777777;
+  font-size: 15px;
+  font-weight: bold;
+  padding: 6px 24px;
+}
+
+.App {
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
+}
