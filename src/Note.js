@@ -1,15 +1,11 @@
-import React, { useState } from "react";
+import React from "react";
 
 const Note = ({ note, pitch }) => {
   return (
-    <div>
-      <div className="pitch">
-        <span id="pitch">frequency: {pitch}</span>Hz
-      </div>
-      <div className="note">
-        <span id="note">Note: {note}</span>
-      </div>
-    </div>
+    <>
+      <div className="note">{note}</div>
+      <div className="pitch">{pitch} Hz</div>
+    </>
   );
 };
 
