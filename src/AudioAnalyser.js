@@ -22,17 +22,11 @@ const AudioAnalyser = ({ audio }) => {
   source.connect(analyser);
   let rafID = null; //request animation frame ID
 
-  const cleanup = () => {
-    window.cancelAnimationFrame(rafID);
-    analyser.disconnect();
-    source.disconnect();
-  };
-
   function updatePitch() {
     analyser.getFloatTimeDomainData(dataArray);
-    var ac = autoCorrelate(dataArray, audioContext.sampleRate);
+    const ac = autoCorrelate(dataArray, audioContext.sampleRate);
 
-    if (ac !== -1) {
+    if (ac !== -1) { // -1 means no good correlation found
       setPitch(Math.round(ac));
       setNote(noteStrings(ac));
       setDetune(centsOffFromPitch(ac, noteFromPitch(ac)));
@@ -41,12 +35,17 @@ const AudioAnalyser = ({ audio }) => {
     if (!window.requestAnimationFrame) {
       window.requestAnimationFrame = window.webkitRequestAnimationFrame;
     }
+    //recursive calling itself with requestAnimationFrame, keeps updating until cleanup
     rafID = window.requestAnimationFrame(updatePitch);
   }
 
-  useEffect(() => {
-    console.log("analyser connected");
+  const cleanup = () => {
+    window.cancelAnimationFrame(rafID);
+    analyser.disconnect();
+    source.disconnect();
+  };
 
+  useEffect(() => {
     updatePitch();
     return () => {
       cleanup();
@@ -55,8 +54,8 @@ const AudioAnalyser = ({ audio }) => {
 
   return (
     <div>     
-      <Note pitch={pitch} note={note}/>
       <Meter detune={detune}/>
+      <Note pitch={pitch} note={note}/>
     </div>
   );
 };

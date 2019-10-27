@@ -11,3 +11,34 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+.meter {
+  /* position: absolute; */
+  width: 200px;
+  height: 33%;
+}
+.meter__scale {
+ width: 1px;
+ height: 25vw;
+ min-height: 250px;
+ transform-origin: bottom;
+ border-top: 10px solid;
+ position: absolute;
+ right: 50%;
+}
+
+.meter__pointer{
+  background: black;
+  width: 2px;
+  height: 25vw;
+  min-height: 250px;
+  transform-origin: bottom;
+  transition: transform 0.5s;
+  position: absolute;
+  right: 50%
+}
+.pitch{
+ 
+}
+
+
