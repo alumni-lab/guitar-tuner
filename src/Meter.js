@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 const Meter = ({ detune }) => {
   //make 10 scale marks rotated(with css) across -45 degree to +45 degree
@@ -7,7 +7,7 @@ const Meter = ({ detune }) => {
     let styles = {
       transform: `rotate(${i * 9 - 45}deg)`
     };
-    scales[i] = <div className="meter__scale" style={styles}></div>;
+    scales[i] = <div className="meter__scale" key={i} style={styles}></div>;
   }
   //make pointer that changes position depending on detune amount
   const pointerStyle = {
