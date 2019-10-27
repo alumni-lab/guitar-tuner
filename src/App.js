@@ -27,10 +27,10 @@ const App = () =>{
 
     return (
       <div className="App">
+        {audio ? <AudioAnalyser audio={audio} /> : ''}
         <div className="controls">
           <button onClick={toggleMicrophone}>{audio ? 'Stop microphone' : 'Get microphone input'}</button>
         </div>
-        {audio ? <AudioAnalyser audio={audio} /> : ''}
       </div>
     );
 
