@@ -1,6 +1,4 @@
-import React, { useEffect, useState } from "react";
-import Meter from "./Meter"
-import Note from "./Note"
+import React, { useEffect } from "react";
 import {
   noteFromPitch,
   noteStrings,
@@ -8,11 +6,8 @@ import {
   autoCorrelate
 } from "./util/helpers.js";
 
-const AudioAnalyser = ({ audio }) => {
+const AudioAnalyser = ({ audio, setPitch, setNote, setDetune }) => {
   //state variables
-  const [pitch, setPitch] = useState();
-  const [note, setNote] = useState();
-  const [detune, setDetune] = useState();
   //start audio context and analyser
   const audioContext = new (window.AudioContext || window.webkitAudioContext)();
   const analyser = audioContext.createAnalyser();
@@ -26,7 +21,8 @@ const AudioAnalyser = ({ audio }) => {
     analyser.getFloatTimeDomainData(dataArray);
     const ac = autoCorrelate(dataArray, audioContext.sampleRate);
 
-    if (ac !== -1) { // -1 means no good correlation found
+    if (ac !== -1) {
+      // -1 means no good correlation found
       setPitch(Math.round(ac));
       setNote(noteStrings(ac));
       setDetune(centsOffFromPitch(ac, noteFromPitch(ac)));
@@ -52,12 +48,7 @@ const AudioAnalyser = ({ audio }) => {
     };
   }, []);
 
-  return (
-    <div>     
-      <Meter detune={detune}/>
-      <Note pitch={pitch} note={note}/>
-    </div>
-  );
+  return <></>;
 };
 
 export default AudioAnalyser;
