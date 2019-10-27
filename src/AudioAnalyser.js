@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import {
   noteFromPitch,
   noteStrings,
-  centsOffFromPitch
+  centsOffFromPitch,
+  autoCorrelate
 } from "./util/helpers.js";
 
 const AudioAnalyser = ({ audio }) => {
@@ -20,68 +21,14 @@ const AudioAnalyser = ({ audio }) => {
 
   let rafID = null; //request animation frame ID
 
-  var MIN_SAMPLES = 0; // will be initialized when AudioContext is created.
-  var GOOD_ENOUGH_CORRELATION = 0.9; // this is the "bar" for how close a correlation needs to be
-
-  /// finds and return frequnecy/pitch
-  function autoCorrelate(buf, sampleRate) {
-    var SIZE = buf.length;
-    var MAX_SAMPLES = Math.floor(SIZE / 2);
-    var best_offset = -1;
-    var best_correlation = 0;
-    var rms = 0;
-    var foundGoodCorrelation = false;
-    var correlations = new Array(MAX_SAMPLES);
-
-    for (let i = 0; i < SIZE; i++) {
-      var val = buf[i];
-      rms += val * val;
-    }
-    rms = Math.sqrt(rms / SIZE);
-    if (rms < 0.01)
-      // not enough signal
-      return -1;
-
-    var lastCorrelation = 1;
-    for (var offset = MIN_SAMPLES; offset < MAX_SAMPLES; offset++) {
-      var correlation = 0;
-
-      for (let i = 0; i < MAX_SAMPLES; i++) {
-        correlation += Math.abs(buf[i] - buf[i + offset]);
-      }
-      correlation = 1 - correlation / MAX_SAMPLES;
-      correlations[offset] = correlation;
-      if (
-        correlation > GOOD_ENOUGH_CORRELATION &&
-        correlation > lastCorrelation
-      ) {
-        foundGoodCorrelation = true;
-        if (correlation > best_correlation) {
-          best_correlation = correlation;
-          best_offset = offset;
-        }
-      } else if (foundGoodCorrelation) {
-        var shift =
-          (correlations[best_offset + 1] - correlations[best_offset - 1]) /
-          correlations[best_offset];
-        return sampleRate / (best_offset + 8 * shift);
-      }
-      lastCorrelation = correlation;
-    }
-    if (best_correlation > 0.01) {
-      return sampleRate / best_offset;
-    }
-    return -1;
-  }
-
-  let sign = "-";
-  if (detune === 0) {
-    sign = "-";
-  } else if (detune < 0) {
-    sign = "cents ♭";
-  } else if (detune > 0) {
-    sign = "cents ♯";
-  }
+  // let sign = "-";
+  // if (detune === 0) {
+  //   sign = "-";
+  // } else if (detune < 0) {
+  //   sign = "cents ♭";
+  // } else if (detune > 0) {
+  //   sign = "cents ♯";
+  // }
 
   const cleanup = () => {
     window.cancelAnimationFrame(rafID);
@@ -107,6 +54,7 @@ const AudioAnalyser = ({ audio }) => {
       setNote(noteStrings(ac));
       // noteElem.innerHTML = noteStrings[note % 12];
       setDetune(centsOffFromPitch(ac, noteFromPitch(ac)));
+
       if (detune === 0) {
         // detuneElem.className = "";
         // detuneAmount.innerHTML = "--";
@@ -124,6 +72,9 @@ const AudioAnalyser = ({ audio }) => {
     rafID = window.requestAnimationFrame(updatePitch);
   }
 
+  if (detune > 45 || detune< -45){
+    console.log(detune)
+  }
   useEffect(() => {
     console.log("analyser connected");
 
@@ -131,7 +82,7 @@ const AudioAnalyser = ({ audio }) => {
     return () => {
       cleanup();
     };
-  }, [cleanup]);
+  }, []);
 
   return (
     <div>
@@ -143,8 +94,8 @@ const AudioAnalyser = ({ audio }) => {
       </div>
       <canvas id="output" width="300" height="42"></canvas>
       <div id="detune">
-        <span id="detune_amt">Off by: {Math.abs(detune)}</span>
-        <span>{sign}</span>
+        <span id="detune_amt">Off by: {detune}</span>
+        {/* <span>{sign}</span> */}
       </div>
     </div>
   );
