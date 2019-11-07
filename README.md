@@ -10,5 +10,5 @@ For demo please visit: https://practical-volhard-9bf6e2.netlify.com/
 3. visit localhost://3000
 
 ## Screenshot
-!["Tuning"](https://github.com/JerChuang/guitar-tuner/blob/master/public/images/tuner.gif)
+!["Tuning"](https://raw.githubusercontent.com/alumni-lab/guitar-tuner/master/public/tuner.gif)
 
